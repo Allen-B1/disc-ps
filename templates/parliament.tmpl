@@ -1,0 +1,137 @@
+{{$global := .}}
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+body { font-family: sans-serif; }
+#parliament {
+    padding: 16px;
+    max-width: 1024px;
+    background: #eee;
+    display: grid;
+    grid-template-columns: 1fr 192px; }
+.seats { display: flex; flex-wrap: wrap; align-content: flex-end; flex-grow: 1; }
+.gov, .opp, .cross { display: flex; flex-direction: row; }
+.gov {
+    grid-row: 1;
+    grid-column: 1;
+    margin-bottom: 128px; }
+.opp {
+    grid-row: 2;
+    grid-column: 1; }
+.cross {
+    flex-direction: column;
+    justify-content: center;
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    margin-top:  }
+.gov .seats {
+    flex-wrap: wrap-reverse; }
+.cross .seats {
+    max-height: var(--height);
+    width: 196px;
+    flex-direction: column;
+    justify-content: center;
+    align-content: flex-start; }
+
+.seat {
+    width: 24px; height: 24px;
+    display: inline-block;
+    background: #888;
+    margin: 2px;
+    position: relative;
+}
+
+.seat .seat-info { display: none; }
+.seat:hover .seat-info { 
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 8px;
+    z-index: 2;
+    width: 256px;
+    max-height: 128px;
+    border: 2px solid #888;
+    font-size: 13px;
+
+    background: #fff; }
+
+.seat-info .header {
+    text-align: center;
+    padding: 8px;
+    color: #fff;
+}
+.seat-info .name {
+    font-size: 14px; }
+.seat-info .party {font-size: 12px;}
+.seat-info .constituency { padding: 16px; }
+.seat-info .role { padding: 16px; padding-top: 0; }
+
+{{range $partyName, $party := .Parties}}
+.{{transform $partyName}} {
+    background-color: {{$party.Color}}
+}
+{{end}}
+        </style>
+    </head>
+    <body>
+    {{define "seatinfo"}}
+        {{- $global := .Global}}
+        {{- $member := .Member}}
+
+        <div class="seat-info">
+            <div class="header {{transform $member.Party}}">
+                <div class="name">{{$member.Name}}</div>
+                <div class="party">{{$member.Party}}</div>
+            </div>
+            <div class="constituency">Member for {{$member.Constituency}}</div>
+            <div class="role">{{$member.Role}}</div>
+        </div>
+    {{end}}
+
+    {{define "seats"}}
+        {{- $global := .Global}}
+        {{- $partyName := .Party}}
+
+        {{- $count := index $global.Count $partyName}}
+        {{- $members := index $global.Members $partyName}}
+
+        <div class="seats" style="--height: {{div $count.Count (min $count.Count 4) | mul 30}}px">
+        {{- range $i, $discard := repeat $count.Count -}}
+            <div class="seat {{transform $partyName}}">
+                {{if gt (len $members) $i}}
+                {{template "seatinfo" dict "Member" (index $members $i) "Global" $global}}
+                {{end}}
+            </div>
+        {{- end}}
+        </div>
+    {{- end}}
+
+        <div id="parliament">
+            <div class="gov">
+            {{range $party, $count := .Count}}
+                {{if eq $count.Role "gov"}}
+                    {{template "seats" dict "Party" $party "Global" $global}}
+                {{end}}
+            {{end}}
+            </div>
+
+            <div class="opp">
+            {{range $party, $count := .Count}}
+                {{if eq $count.Role "opp"}}
+                    {{template "seats" dict "Party" $party "Global" $global}}
+                {{end}}
+            {{end}}
+            </div>
+
+            <div class="cross">
+            {{range $party, $count := .Count}}
+                {{if eq $count.Role "cross"}}
+                    {{template "seats" dict "Party" $party "Global" $global}}
+                {{end}}
+            {{end}}
+            </div>
+
+        </div>
+    </body>
+</html>
