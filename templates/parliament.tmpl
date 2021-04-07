@@ -11,18 +11,22 @@ body { font-family: sans-serif; }
     display: grid;
     grid-template-columns: 1fr 192px; }
 .seats { display: flex; flex-wrap: wrap; align-content: flex-end; flex-grow: 1; }
-.gov, .opp, .cross { display: flex; flex-direction: row; }
+.gov, .speaker, .opp, .cross { display: flex; flex-direction: row; }
 .gov {
     grid-row: 1;
     grid-column: 1;
-    margin-bottom: 128px; }
-.opp {
+    margin-bottom: 64px; }
+.speaker {
     grid-row: 2;
     grid-column: 1; }
+.opp {
+    grid-row: 3;
+    grid-column: 1;
+    margin-top: 64px; }
 .cross {
     flex-direction: column;
     justify-content: center;
-    grid-row: 1 / span 2;
+    grid-row: 1 / span 3;
     grid-column: 2;
     margin-top:  }
 .gov .seats {
@@ -33,6 +37,8 @@ body { font-family: sans-serif; }
     flex-direction: column;
     justify-content: center;
     align-content: flex-start; }
+.speaker .seats {
+    justify-content: center; align-items: center; }
 
 .seat {
     width: 24px; height: 24px;
@@ -42,25 +48,26 @@ body { font-family: sans-serif; }
     position: relative;
 }
 
-.seat .seat-info { display: none; }
-.seat:hover .seat-info { 
-    display: block;
+.seat-info { display: none; }
+.seat:target .seat-info { 
+    display: block; }
+
+.seat-info {
     position: absolute;
-    top: 20px;
-    left: 8px;
+    top: 20px; left: 8px;
     z-index: 2;
     width: 256px;
-    max-height: 128px;
-    border: 2px solid #888;
+    min-height: 128px;
+    cursor: default;
+    
+    border: 2px solid #111;
     font-size: 13px;
-
-    background: #fff; }
-
+    color: #000;
+    background: #fff;  }
 .seat-info .header {
     text-align: center;
     padding: 8px;
-    color: #fff;
-}
+    color: #fff; }
 .seat-info .name {
     font-size: 14px; }
 .seat-info .party {font-size: 12px;}
@@ -72,6 +79,8 @@ body { font-family: sans-serif; }
     background-color: {{$party.Color}}
 }
 {{end}}
+
+.Speaker { background: #111; }
         </style>
     </head>
     <body>
@@ -98,11 +107,11 @@ body { font-family: sans-serif; }
 
         <div class="seats" style="--height: {{div $count.Count (min $count.Count 4) | mul 30}}px">
         {{- range $i, $discard := repeat $count.Count -}}
-            <div class="seat {{transform $partyName}}">
-                {{if gt (len $members) $i}}
-                {{template "seatinfo" dict "Member" (index $members $i) "Global" $global}}
-                {{end}}
-            </div>
+            <a class="seat {{transform $partyName}}" id="seat-{{transform $partyName}}-{{$i}}" href="#seat-{{transform $partyName}}-{{$i}}">
+            {{if gt (len $members) $i}}
+            {{template "seatinfo" dict "Member" (index $members $i) "Global" $global}}
+            {{end}}
+            </a>
         {{- end}}
         </div>
     {{- end}}
@@ -111,6 +120,14 @@ body { font-family: sans-serif; }
             <div class="gov">
             {{range $party, $count := .Count}}
                 {{if eq $count.Role "gov"}}
+                    {{template "seats" dict "Party" $party "Global" $global}}
+                {{end}}
+            {{end}}
+            </div>
+
+            <div class="speaker">
+            {{range $party, $count := .Count}}
+                {{if eq $count.Role "speaker"}}
                     {{template "seats" dict "Party" $party "Global" $global}}
                 {{end}}
             {{end}}

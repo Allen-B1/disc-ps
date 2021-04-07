@@ -63,9 +63,14 @@ func (s Server) FetchParliamentCount(body string) (map[string]*ParliamentPartyCo
 			continue
 		}
 
+		role := partyType
+		if name == "Speaker" {
+			role = "speaker"
+		}
+
 		parties[name] = &ParliamentPartyCount{
 			Count: count,
-			Role: partyType,
+			Role: role,
 		}
 	}
 
