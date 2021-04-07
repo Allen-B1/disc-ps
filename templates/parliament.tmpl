@@ -2,12 +2,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="/style.css">
         <style>
-body { font-family: sans-serif; }
 #parliament {
     padding: 16px;
     max-width: 1024px;
-    background: #eee;
     display: grid;
     grid-template-columns: 1fr 192px; }
 .seats { display: flex; flex-wrap: wrap; align-content: flex-end; flex-grow: 1; }
@@ -38,7 +37,7 @@ body { font-family: sans-serif; }
     justify-content: center;
     align-content: flex-start; }
 .speaker .seats {
-    justify-content: center; align-items: center; }
+    justify-content: flex-start; align-items: center; }
 
 .seat {
     width: 24px; height: 24px;
@@ -51,10 +50,11 @@ body { font-family: sans-serif; }
 .seat-info { display: none; }
 .seat:target .seat-info { 
     display: block; }
+.seat:target { outline: 2px solid #111; }
 
 .seat-info {
     position: absolute;
-    top: 20px; left: 8px;
+    top: 28px; left: -2px;
     z-index: 2;
     width: 256px;
     min-height: 128px;
@@ -107,7 +107,7 @@ body { font-family: sans-serif; }
 
         <div class="seats" style="--height: {{div $count.Count (min $count.Count 4) | mul 30}}px">
         {{- range $i, $discard := repeat $count.Count -}}
-            <a class="seat {{transform $partyName}}" id="seat-{{transform $partyName}}-{{$i}}" href="#seat-{{transform $partyName}}-{{$i}}">
+            <a class="seat {{transform $partyName}}" {{if gt (len $members) $i}}id="{{(index $members $i).ID}}" href="#{{(index $members $i).ID}}"{{end}}>
             {{if gt (len $members) $i}}
             {{template "seatinfo" dict "Member" (index $members $i) "Global" $global}}
             {{end}}

@@ -83,6 +83,37 @@ func main() {
 		})
 	})
 
+	r.GET("/api/:server/vote/:vote", func (c *gin.Context) {
+		server := Server(c.Param("server"))
+
+		votes, err := server.FetchVotes(c.Param("vote"))
+		if err != nil {
+			c.String(500, "%v", err)
+			return
+		}
+
+		c.JSON(200, votes)
+	})
+
+	r.StaticFile("/style.css", "style.css")
+
+	r.GET("/html/:server/vote/:vote", func (c *gin.Context) {
+		server := Server(c.Param("server"))
+		votes, err := server.FetchVotes(c.Param("vote"))
+		if err != nil {
+			c.String(500, "%v", err)
+			return
+		}
+
+		fmt.Println(votes)
+
+		r.LoadHTMLFiles("templates/vote.tmpl")
+
+		c.HTML(200, "vote.tmpl", map[string]interface{} {
+			"Votes": votes,
+		})
+	})
+
 	r.GET("/html/:server/body/:body", func (c *gin.Context) {
 		server := Server(c.Param("server"))
 		body := c.Param("body")
